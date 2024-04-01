@@ -1,0 +1,64 @@
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
+
+function MoviesList() {
+  const [movies, setMovies] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState(null);
+  const isRetryingRef = useRef(false);
+
+  const fetchMoviesHandler = useCallback(async () => {
+    setIsLoading(true);
+    setErrorMessage(null);
+    isRetryingRef.current = false;
+
+    try {
+      const response = await fetch('https://swapi.dev/api/films');
+      if (!response.ok) {
+        throw new Error('Failed to fetch movies');
+      }
+      const data = await response.json();
+      setMovies(data.results);
+    } catch (error) {
+      console.error('Error fetching movies:', error);
+      setErrorMessage('Something went wrong ....Retrying');
+      isRetryingRef.current = true;
+      setTimeout(() => {
+        if (isRetryingRef.current) {
+          fetchMoviesHandler();
+        }
+      }, 5000);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  const cancelRetryHandler = useCallback(() => {
+    isRetryingRef.current = false;
+  }, []);
+
+  useEffect(() => {
+    fetchMoviesHandler();
+  }, [fetchMoviesHandler]);
+
+  const moviesList = useMemo(
+    () =>
+      movies.map(movie => (
+        <li key={movie.episode_id}>
+          <h2>{movie.title}</h2>
+          <p>{movie.opening_crawl}</p>
+        </li>
+      )),
+    [movies]
+  );
+
+  return (
+    <div>
+      <button disabled={isLoading}>Fetch Movies</button>
+      {errorMessage && <p>{errorMessage}</p>}
+      {isRetryingRef.current && <button onClick={cancelRetryHandler}>Cancel Retry</button>}
+      {isLoading ? <p>Loading...</p> : <ul>{moviesList}</ul>}
+    </div>
+  );
+}
+
+export default MoviesList;
