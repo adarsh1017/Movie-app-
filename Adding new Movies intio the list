@@ -1,0 +1,51 @@
+import React, { useState } from 'react';
+import './styles.css';
+
+const MovieForm = (props) => {
+    const [enteredTitle, setEnteredTitle] = useState('');
+    const [enteredOpeningText, setEnteredOpeningText] = useState('');
+    const [enteredReleaseDate, setEnteredReleaseDate] = useState('');
+
+    const submitHandler = (event) => {
+        event.preventDefault();
+
+        const movieData = {
+            title: enteredTitle,
+            openingText: enteredOpeningText,
+            releaseDate: enteredReleaseDate
+        };
+
+        props.onAddMovie(movieData);
+
+        // Reset form fields
+        setEnteredTitle('');
+        setEnteredOpeningText('');
+        setEnteredReleaseDate('');
+    };
+
+    const titleChangeHandler = (event) => {
+        setEnteredTitle(event.target.value);
+    };
+
+    const openingTextChangeHandler = (event) => {
+        setEnteredOpeningText(event.target.value);
+    };
+
+    const releaseDateChangeHandler = (event) => {
+        setEnteredReleaseDate(event.target.value);
+    };
+
+    return (
+        <form onSubmit={submitHandler}>
+            <label>Title</label>
+            <input type="text" value={enteredTitle} onChange={titleChangeHandler} />
+            <label>Opening Text</label>
+            <textarea rows="5" value={enteredOpeningText} onChange={openingTextChangeHandler}></textarea>
+            <label>Release Date</label>
+            <input type="date" value={enteredReleaseDate} onChange={releaseDateChangeHandler} />
+            <button type="submit">Add Movie</button>
+        </form>
+    );
+};
+
+export default MovieForm;
