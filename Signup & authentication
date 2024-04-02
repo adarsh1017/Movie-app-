@@ -1,0 +1,72 @@
+import { useState } from 'react';
+import classes from './AuthForm.module.css';
+
+const AuthForm = () => {
+  const [isLogin, setIsLogin] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
+  const [feedback, setFeedback] = useState(null); // State for feedback message
+
+  const switchAuthModeHandler = () => {
+    setIsLogin((prevState) => !prevState);
+  };
+
+  const submitHandler = () => {
+    // Simulate sign-up action
+    setIsLoading(true);
+    setTimeout(() => {
+      setIsLoading(false);
+      // Simulate failed sign-up
+      setFeedback('EMAIL_EXISTS');
+    }, 2000); // Simulating a delay of 2 seconds
+  };
+
+  let feedbackMessage = null;
+
+  // Check for feedback and set the corresponding message
+  if (feedback === 'EMAIL_EXISTS') {
+    feedbackMessage = <p className={classes.feedback}>Email already exists. Please use a different email.</p>;
+  }
+
+  return (
+    <section className={classes.auth}>
+      <h1>{isLogin ? 'Login' : 'Sign Up'}</h1>
+      <form>
+        <div className={classes.control}>
+          <label htmlFor='email'>Your Email</label>
+          <input type='email' id='email' required />
+        </div>
+        <div className={classes.control}>
+          <label htmlFor='password'>Your Password</label>
+          <input
+            type='password'
+            id='password'
+            required
+          />
+        </div>
+        <div className={classes.actions}>
+          {isLoading ? (
+            <p>Sending request...</p>
+          ) : (
+            <button
+              type='button'
+              className={classes.toggle}
+              onClick={submitHandler}
+            >
+              {isLogin ? 'Login' : 'Sign Up'}
+            </button>
+          )}
+          <button
+            type='button'
+            className={classes.toggle}
+            onClick={switchAuthModeHandler}
+          >
+            {isLogin ? 'Create new account' : 'Login with existing account'}
+          </button>
+        </div>
+      </form>
+      {feedbackMessage}
+    </section>
+  );
+};
+
+export default AuthForm;
