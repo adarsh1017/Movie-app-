@@ -1,0 +1,106 @@
+import { useState } from 'react';
+import classes from './AuthForm.module.css';
+
+const AuthForm = () => {
+  const [enteredEmail, setEnteredEmail] = useState('');
+  const [enteredPassword, setEnteredPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [feedback, setFeedback] = useState(null);
+
+  const switchAuthModeHandler = () => {
+    // Toggle between login and sign-up modes
+  };
+
+  const submitHandler = () => {
+    setIsLoading(true);
+
+    // Fetch data from login API URL
+    fetch(`https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=[API_KEY]`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        email: enteredEmail,
+        password: enteredPassword,
+        returnSecureToken: true,
+      }),
+    })
+    .then(response => {
+      setIsLoading(false);
+      if (!response.ok) {
+        throw new Error('Authentication failed!');
+      }
+      return response.json();
+    })
+    .then(data => {
+      if (data.idToken) {
+        console.log('JWT (idToken):', data.idToken);
+        // Handle successful login response
+      } else {
+        throw new Error('Authentication failed!');
+      }
+    })
+    .catch(error => {
+      console.error(error); // Handle authentication error
+      setFeedback('LOGIN_FAILED'); // Set feedback message for login failure
+    });
+  };
+
+  let feedbackMessage = null;
+
+  if (feedback === 'LOGIN_FAILED') {
+    feedbackMessage = <p className={classes.feedback}>Authentication failed. Please check your email and password.</p>;
+  }
+
+  return (
+    <section className={classes.auth}>
+      <h1>Login</h1>
+      <form>
+        <div className={classes.control}>
+          <label htmlFor='email'>Your Email</label>
+          <input
+            type='email'
+            id='email'
+            value={enteredEmail}
+            onChange={(event) => setEnteredEmail(event.target.value)}
+            required
+          />
+        </div>
+        <div className={classes.control}>
+          <label htmlFor='password'>Your Password</label>
+          <input
+            type='password'
+            id='password'
+            value={enteredPassword}
+            onChange={(event) => setEnteredPassword(event.target.value)}
+            required
+          />
+        </div>
+        <div className={classes.actions}>
+          {isLoading ? (
+            <p>Sending request...</p>
+          ) : (
+            <button
+              type='button'
+              className={classes.toggle}
+              onClick={submitHandler}
+            >
+              Login
+            </button>
+          )}
+          <button
+            type='button'
+            className={classes.toggle}
+            onClick={switchAuthModeHandler}
+          >
+            Create new account
+          </button>
+        </div>
+      </form>
+      {feedbackMessage}
+    </section>
+  );
+};
+
+export default AuthForm;
