@@ -1,0 +1,48 @@
+import React, { createContext, useContext, useState } from 'react';
+
+const AuthContext = createContext();
+
+export const useAuth = () => useContext(AuthContext);
+
+export const AuthProvider = ({ children }) => {
+  const [authToken, setAuthToken] = useState(null);
+
+  const storeToken = (token) => {
+    setAuthToken(token);
+  };
+
+  const clearToken = () => {
+    setAuthToken(null);
+  };
+
+  return (
+    <AuthContext.Provider value={{ authToken, storeToken, clearToken }}>
+      {children}
+    </AuthContext.Provider>
+  );
+};
+
+
+import React from 'react';
+import { useHistory } from 'react-router-dom';
+import { useAuth } from './AuthContext';
+
+const LogoutButton = () => {
+  const { clearToken } = useAuth();
+  const history = useHistory();
+
+  const handleLogout = () => {
+    // Clear token on logout
+    clearToken();
+    // Redirect user to login page
+    history.push('/login');
+  };
+
+  return (
+    <div>
+      <button onClick={handleLogout}>Logout</button>
+    </div>
+  );
+};
+
+export default LogoutButton;
