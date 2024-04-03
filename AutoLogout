@@ -1,0 +1,51 @@
+import React, { useState, useEffect } from 'react';
+import { useHistory } from 'react-router-dom';
+import { useAuth } from './AuthContext';
+
+const AutoLogout = () => {
+  const { clearToken } = useAuth();
+  const history = useHistory();
+  const [timer, setTimer] = useState(null);
+
+  useEffect(() => {
+    // Start the timer on login
+    startLogoutTimer();
+
+    // Cleanup function to clear the timer on component unmount or logout
+    return () => clearTimeout(timer);
+  }, []);
+
+  const startLogoutTimer = () => {
+    // Set a timer to logout after 5 minutes (300,000 milliseconds)
+    const logoutTimer = setTimeout(() => {
+      // Clear the token and redirect to login page on timeout
+      clearToken();
+      history.push('/login');
+    }, 300000); // 5 minutes in milliseconds
+
+    // Store the timer ID in state
+    setTimer(logoutTimer);
+  };
+
+  // Reset the timer when user interacts with the page
+  const resetLogoutTimer = () => {
+    clearTimeout(timer);
+    startLogoutTimer();
+  };
+
+  // Attach event listeners to reset timer on user interaction
+  useEffect(() => {
+    document.addEventListener('mousemove', resetLogoutTimer);
+    document.addEventListener('keypress', resetLogoutTimer);
+
+    // Cleanup function to remove event listeners on component unmount
+    return () => {
+      document.removeEventListener('mousemove', resetLogoutTimer);
+      document.removeEventListener('keypress', resetLogoutTimer);
+    };
+  }, []);
+
+  return null; // AutoLogout component does not render anything
+};
+
+export default AutoLogout;
