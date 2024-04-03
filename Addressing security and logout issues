@@ -1,0 +1,59 @@
+import React from 'react';
+import { useHistory } from 'react-router-dom';
+import { useAuth } from './AuthContext';
+
+const LogoutButton = () => {
+  const { clearToken } = useAuth();
+  const history = useHistory();
+
+  const handleLogout = () => {
+    // Clear token on logout
+    clearToken();
+    // Remove token from localStorage
+    localStorage.removeItem('authToken');
+    // Redirect user to login page
+    history.push('/login');
+  };
+
+  return (
+    <div>
+      <button onClick={handleLogout}>Logout</button>
+    </div>
+  );
+};
+
+export default LogoutButton;
+
+
+import React, { createContext, useContext, useEffect, useState } from 'react';
+
+const AuthContext = createContext();
+
+export const useAuth = () => useContext(AuthContext);
+
+export const AuthProvider = ({ children }) => {
+  const [authToken, setAuthToken] = useState(() => localStorage.getItem('authToken'));
+
+  useEffect(() => {
+    // Store token in localStorage when it changes
+    if (authToken) {
+      localStorage.setItem('authToken', authToken);
+    } else {
+      localStorage.removeItem('authToken');
+    }
+  }, [authToken]);
+
+  const storeToken = (token) => {
+    setAuthToken(token);
+  };
+
+  const clearToken = () => {
+    setAuthToken(null);
+  };
+
+  return (
+    <AuthContext.Provider value={{ authToken, storeToken, clearToken }}>
+      {children}
+    </AuthContext.Provider>
+  );
+};
