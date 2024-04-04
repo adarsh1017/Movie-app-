@@ -1,43 +1,98 @@
-import React, { useState } from 'react';
+/*
+import React from 'react';
 
-function MoviesList() {
-  const [movies, setMovies] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
+import Movie from './Movie';
+import classes from './MoviesList.module.css';
 
-  const fetchMoviesHandler = async () => {
-    setIsLoading(true); // Set isLoading to true when fetching starts
-    try {
-      const response = await fetch('https://swapi.dev/api/films');
-      if (!response.ok) {
-        throw new Error('Failed to fetch movies');
-      }
-      const data = await response.json();
-      setMovies(data.results);
-    } catch (error) {
-      console.error('Error fetching movies:', error);
-    } finally {
-      setIsLoading(false); // Set isLoading to false when fetching ends
-    }
+const MovieList = (props) => {
+  return (
+    <ul className={classes['movies-list']}>
+      {props.movies.map((movie) => (
+        <Movie
+          key={movie.id}
+          title={movie.title}
+          releaseDate={movie.releaseDate}
+          openingText={movie.openingText}
+        />
+      ))}
+    </ul>
+  );
+};
+
+export default MovieList;
+*/
+
+/*
+// MoviesList.js
+
+import React from 'react';
+import Movie from './Movie';
+import classes from './MoviesList.module.css';
+
+const MoviesList = (props) => {
+  const deleteHandler = (id) => {
+    props.onDeleteMovie(id);
   };
 
   return (
-    <div>
-      <button onClick={fetchMoviesHandler} disabled={isLoading}>
-        {isLoading ? 'Loading...' : 'Fetch Movies'}
-      </button>
-      {isLoading && <p>Loading...</p>}
-      <ul>
-        {movies.map(movie => (
-          <li key={movie.episode_id}>
-            <h2>{movie.title}</h2>
-            <p>{movie.opening_crawl}</p>
-          </li>
-        ))}
-      </ul>
-    </div>
+    <ul className={classes['movies-list']}>
+      {props.movies.map((movie) => (
+        <Movie
+          key={movie.id}
+          id={movie.id}
+          title={movie.title}
+          releaseDate={movie.releaseDate}
+          openingText={movie.openingText}
+        >
+          <button onClick={() => deleteHandler(movie.id)}>Delete</button>
+        </Movie>
+      ))}
+    </ul>
   );
-}
+};
+
+export default MoviesList;
+*/
+// MoviesList.js
+
+import React, { useState } from 'react';
+import Movie from './Movie';
+import classes from './MoviesList.module.css';
+import { addToCart } from './cartUtils'; // Import addToCart function
+
+const MoviesList = ({ movies }) => {
+    const [cartItems, setCartItems] = useState([]);
+
+    const handleAddToCart = (movie) => {
+        addToCart(movie);
+        setCartItems(prevItems => [...prevItems, movie]); // Update cart items state
+    };
+
+    return (
+        <div>
+            <h1>Movies List</h1>
+            <ul className={classes['movies-list']}>
+                {movies.map(movie => (
+                    <li key={movie.id}>
+                        <Movie
+                            id={movie.id}
+                            title={movie.title}
+                            releaseDate={movie.releaseDate}
+                            openingText={movie.openingText}
+                        />
+                        <button onClick={() => handleAddToCart(movie)}>Add to Cart</button>
+                    </li>
+                ))}
+            </ul>
+            <h2>Cart</h2>
+            <ul>
+                {cartItems.map(item => (
+                    <li key={item.id}>{item.title}</li>
+                ))}
+            </ul>
+        </div>
+    );
+};
 
 export default MoviesList;
 
- 
